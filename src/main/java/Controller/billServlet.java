@@ -2,6 +2,7 @@ package Controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -55,19 +56,16 @@ public class billServlet extends HttpServlet {
 			case "/new":
 				showNewForm(request, response);
 				break;
-			case "/insert":
+		/**	case "/insert":
 				insertarBill(request, response);
-				break;
+				break;**/
 			case "/delete":
 				eliminarBill(request, response);
 				break;
 			case "/edit":
 				showEditForm(request, response);
 				break;
-			case "/update":
-				actualizarBill(request, response);
-
-				break;
+		
 			default:
 				listBill(request, response);
 				break;
@@ -92,25 +90,39 @@ public class billServlet extends HttpServlet {
 	private void showNewForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher("usuario.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("list.jsp");
 		dispatcher.forward(request, response);
 	}
-
+/**
 	private void insertarBill(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, SQLException {
+	        throws ServletException, IOException, SQLException {
 
-		Date date = request.get;
-		String value = request.getParameter("value");
-		String type = request.getParameter("type");
-		String observation = request.getParameter("observation");
+	    // Obtener los parámetros como cadenas
+	    String dateStr = request.getParameter("date");
+	    String value = request.getParameter("value");
+	    String type = request.getParameter("type");
+	    String observation = request.getParameter("observation");
 
-        bill bill = new bill(date, value, type, observation);
+	    try {
+	        // Convertir la cadena de fecha a un objeto Date
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	        Date date = dateFormat.parse(dateStr);
 
-		billDao.insert(bill);
+	        // Crear un objeto bill con los valores obtenidos
+	        bill bill = new bill(date, value, type, observation);
 
-		response.sendRedirect("list");
+	        // Insertar el objeto bill en la base de datos utilizando el dao
+	        billDao.insert(bill);
 
+	        // Redirigir a la página "list"
+	        response.sendRedirect("list");
+	    } catch (ParseException e) {
+	        e.printStackTrace(); // Manejar la excepción en caso de que la cadena de fecha no sea un formato válido
+	        // Puedes agregar un mensaje de error o redirigir a una página de error según tus necesidades
+	        response.sendRedirect("error.jsp");
+	    }
 	}
+**/
 
 	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
@@ -121,34 +133,19 @@ public class billServlet extends HttpServlet {
 
 		request.setAttribute("usuario", billActual);
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher("usuario.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("list.jsp");
 		dispatcher.forward(request, response);
 
 	}
 
-	private void actualizarBill(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException, SQLException {
-
-		int id = Integer.parseInt(request.getParameter("id"));
-
-		String nombre = request.getParameter("nombre");
-		String email = request.getParameter("email");
-		String pais = request.getParameter("pais");
-
-		Usuario usuario = new Usuario(id, nombre, email, pais);
-
-		usuarioDao.update(usuario);
-
-		response.sendRedirect("list");
-
-	}
+	
 
 	private void eliminarBill(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 
 		int id = Integer.parseInt(request.getParameter("id"));
 
-		usuarioDao.delete(id);
+		billDao.delete(id);
 
 		response.sendRedirect("list");
 	}
@@ -156,10 +153,10 @@ public class billServlet extends HttpServlet {
 	private void listBill(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException, SQLException {
 
-		List<Usuario> listUsuarios = usuarioDao.selectAll();
+		List<bill> listUsuarios = billDao.selectAll();
 		request.setAttribute("listUsuarios", listUsuarios);
 
-		RequestDispatcher dispatcher = request.getRequestDispatcher("usuariolist.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("list.jsp");
 		dispatcher.forward(request, response);
 
 	}
